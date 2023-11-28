@@ -225,7 +225,7 @@ namespace Kiran_FitnessGym_Club.Controllers
       new Claim(JwtRegisteredClaimNames.Email, trainer.Email),
 
 };
-            string userRole = null;
+            //string userRole = null;
 
 
             var expires = DateTime.UtcNow.AddMinutes(10);
