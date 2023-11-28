@@ -1,7 +1,12 @@
 ﻿using Kiran_FitnessGym_Club.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Kiran_FitnessGym_Club.Controllers
 {
@@ -11,6 +16,7 @@ namespace Kiran_FitnessGym_Club.Controllers
     {
         private readonly Kiran_FitnessGym_clubContext dbContext;
         private readonly ILogger<TrainerRegtController> logger;
+        private readonly IConfiguration configuration;
 
         // public TrainerRegtController(ILogger<TrainerRegtController> logger)
         // {
@@ -18,11 +24,14 @@ namespace Kiran_FitnessGym_Club.Controllers
         //  }
 
 
-        public TrainerRegtController(Kiran_FitnessGym_clubContext dbContext, ILogger<TrainerRegtController> logger)
+        public TrainerRegtController(Kiran_FitnessGym_clubContext dbContext, ILogger<TrainerRegtController> logger, IConfiguration configuration)
         {
             this.dbContext = dbContext;
             this.logger = logger;
+            this.configuration = configuration;
         }
+
+        [Authorize]
         [HttpGet("GetTrainer")]
         public IActionResult GetTrainer()
         {
@@ -204,7 +213,34 @@ namespace Kiran_FitnessGym_Club.Controllers
                 return Unauthorized();
             }
 
-            return Ok("Authorized");
+            var issuer = configuration["Jwt:Issuer"];
+            var audience = configuration["Jwt:Audience"];
+            var key = Encoding.UTF8.GetBytes(configuration["Jwt:Key"]);
+            var signingCredentials = new SigningCredentials(
+                                    new SymmetricSecurityKey(key),
+                                    SecurityAlgorithms.HmacSha512Signature
+                                );
+            var claims = new List<Claim>
+{
+      new Claim(JwtRegisteredClaimNames.Email, trainer.Email),
+
+};
+            string userRole = null;
+
+
+            var expires = DateTime.UtcNow.AddMinutes(10);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(10),
+                Issuer = issuer,
+                Audience = audience,
+                SigningCredentials = signingCredentials
+            };
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var jwtToken = tokenHandler.WriteToken(token);
+            return Ok(jwtToken);
         }
 
         [HttpPost("GetName")]
