@@ -31,7 +31,7 @@ namespace Kiran_FitnessGym_Club.Controllers
             this.configuration = configuration;
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet("GetTrainer")]
         public IActionResult GetTrainer()
         {
@@ -189,6 +189,8 @@ namespace Kiran_FitnessGym_Club.Controllers
             }
         }
 
+
+        [Authorize]
         [HttpGet("GetData")]
 
         public IActionResult GetName(string email)

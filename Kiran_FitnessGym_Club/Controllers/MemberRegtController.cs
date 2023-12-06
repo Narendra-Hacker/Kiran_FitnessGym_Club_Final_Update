@@ -67,7 +67,6 @@ namespace Kiran_FitnessGym_Club.Controllers
             member.MobileNo == 0 ||
             string.IsNullOrWhiteSpace(member.City) ||
             member.DateOfJoin == null ||
-            //member.TrainerId == null ||
             string.IsNullOrWhiteSpace(member.Email) ||
             string.IsNullOrWhiteSpace(member.Password)
                 )
